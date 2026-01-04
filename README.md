@@ -53,7 +53,7 @@ Installation
     Clone the Repository
     Bash
 
-git clone https://github.com/RITAMDAS01/StegoVaul
+git clone https://github.com/RITAMDAS01/StegoVault
 cd StegoVault
 
 Set Up Virtual Environment
