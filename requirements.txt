@@ -1,0 +1,4 @@
+flask
+stegano
+cryptography
+gunicorn
