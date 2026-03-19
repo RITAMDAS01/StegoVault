@@ -1,84 +1,316 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-    <title>StegoVault</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StegoVault | Secure Data Embedding</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <script>
-        function openTab(tabName) {
-            var i, x;
-            x = document.getElementsByClassName("section");
-            for (i = 0; i < x.length; i++) { 
-                x[i].style.display = "none"; 
-                x[i].classList.remove("active");
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            850: '#151e2e',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
             }
-            document.getElementById(tabName).style.display = "block";
-            document.getElementById(tabName).classList.add("active");
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Ambient Background Orbs */
+        .ambient-orb-1 {
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .ambient-orb-2 {
+            position: fixed;
+            bottom: -10%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Glassmorphism Panel Base */
+        .glass-panel {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        /* Input styling overrides */
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.4);
+        }
+
+        .hidden-tab { display: none; }
+    </style>
+
+    <script>
+        // Light/Dark Theme Switcher
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            const icon = document.getElementById('theme-icon');
+            
+            if (isDark) {
+                icon.className = 'fa-solid fa-moon text-cyan-400';
+            } else {
+                icon.className = 'fa-solid fa-sun text-amber-500';
+            }
+        }
+
+        // Tab Navigation Logic
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden-tab'));
+            
+            document.getElementById(tabName).classList.remove('hidden-tab');
+
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => {
+                // Reset to inactive state for BOTH themes
+                btn.classList.remove('bg-white', 'dark:bg-white/10', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+                btn.classList.add('text-slate-500', 'dark:text-slate-400', 'hover:bg-slate-200/50', 'dark:hover:bg-white/5');
+            });
+
+            const activeBtn = document.getElementById('btn-' + tabName);
+            // Apply active state for BOTH themes
+            activeBtn.classList.remove('text-slate-500', 'dark:text-slate-400', 'hover:bg-slate-200/50', 'dark:hover:bg-white/5');
+            activeBtn.classList.add('bg-white', 'dark:bg-white/10', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+        }
+
+        // File Selection Display Update
+        function updateFileName(input, displayId) {
+            const display = document.getElementById(displayId);
+            if (input.files && input.files[0]) {
+                display.innerHTML = `<div class="flex items-center justify-center text-cyan-600 dark:text-cyan-400 font-medium text-sm mt-2"><i class="fa-solid fa-file-circle-check mr-2"></i>${input.files[0].name}</div>`;
+            } else {
+                display.innerHTML = '';
+            }
         }
     </script>
 </head>
-<body onload="openTab('Image')">
-    <div class="container">
-        <h1>StegoVault // Classified</h1>
+<body class="bg-slate-50 text-slate-900 dark:bg-[#020617] dark:text-slate-50 flex items-center justify-center p-4 md:p-8" onload="openTab('Image')">
+
+    <!-- Theme Toggle Button -->
+    <button onclick="toggleTheme()" class="absolute top-6 right-6 z-50 w-12 h-12 rounded-full bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:scale-105 transition-transform">
+        <i id="theme-icon" class="fa-solid fa-moon text-cyan-400 text-xl"></i>
+    </button>
+
+    <!-- Background Design Elements -->
+    <div class="ambient-orb-1"></div>
+    <div class="ambient-orb-2"></div>
+
+    <!-- Main Container -->
+    <div class="w-full max-w-2xl glass-panel bg-white/70 dark:bg-slate-900/60 border border-white/50 dark:border-white/10 rounded-[2rem] shadow-2xl relative z-10 overflow-hidden transition-colors duration-300">
         
+        <!-- Header -->
+        <div class="p-8 text-center border-b border-slate-200/50 dark:border-white/5">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-100 to-indigo-100 dark:from-cyan-500/20 dark:to-indigo-500/20 border border-cyan-200/50 dark:border-white/10 mb-4 shadow-inner">
+                <i class="fa-solid fa-fingerprint text-cyan-600 dark:text-cyan-400 text-2xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">Stego<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-indigo-600 dark:from-cyan-400 dark:to-indigo-400">Vault</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Classified Data Encapsulation</p>
+        </div>
+
+        <!-- Jinja2 Flash Messages -->
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <div class="flash">{{ messages[0] }}</div>
+                <div class="px-8 pt-6">
+                    <div class="flex items-center p-4 rounded-2xl bg-cyan-100/50 dark:bg-cyan-500/10 border border-cyan-300/50 dark:border-cyan-500/20 text-cyan-800 dark:text-cyan-300 text-sm shadow-inner">
+                        <i class="fa-solid fa-circle-exclamation mr-3 text-lg"></i>
+                        <span class="font-medium">{{ messages[0] }}</span>
+                    </div>
+                </div>
             {% endif %}
         {% endwith %}
 
-        <div class="tab-buttons">
-            <button onclick="openTab('Image')">Image Stego</button>
-            <button onclick="openTab('Audio')">Audio Stego</button>
-            <button onclick="openTab('Text')">Text Stego</button>
-        </div>
+        <!-- Content Area -->
+        <div class="p-6 md:p-8">
 
-        <div id="Image" class="section">
-            <h2>Image Operation</h2>
-            <form action="/process_image" method="POST" enctype="multipart/form-data">
-                <label>Action:</label>
-                <select name="action">
-                    <option value="hide">Hide Message</option>
-                    <option value="reveal">Reveal Message</option>
-                </select>
-                <label>Upload PNG:</label>
-                <input type="file" name="file" accept=".png" required>
-                <label>Secret Message (if hiding):</label>
-                <input type="text" name="message" placeholder="Enter secret...">
-                <button type="submit">Execute</button>
-            </form>
-        </div>
+            <!-- Pill Navigation -->
+            <div class="flex p-1.5 bg-slate-200/50 dark:bg-slate-900/50 rounded-2xl mb-8 border border-slate-300/50 dark:border-white/5 transition-colors">
+                <button id="btn-Image" onclick="openTab('Image')" class="tab-btn flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center">
+                    <i class="fa-regular fa-image mr-2 opacity-70"></i> Image
+                </button>
+                <button id="btn-Audio" onclick="openTab('Audio')" class="tab-btn flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center">
+                    <i class="fa-solid fa-waveform mr-2 opacity-70"></i> Audio
+                </button>
+                <button id="btn-Text" onclick="openTab('Text')" class="tab-btn flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center">
+                    <i class="fa-solid fa-align-left mr-2 opacity-70"></i> Text
+                </button>
+            </div>
 
-        <div id="Audio" class="section">
-            <h2>Audio Operation</h2>
-            <form action="/process_audio" method="POST" enctype="multipart/form-data">
-                <label>Action:</label>
-                <select name="action">
-                    <option value="hide">Hide Message</option>
-                    <option value="reveal">Reveal Message</option>
-                </select>
-                <label>Upload WAV:</label>
-                <input type="file" name="file" accept=".wav" required>
-                <label>Secret Message (if hiding):</label>
-                <input type="text" name="message" placeholder="Enter secret...">
-                <button type="submit">Execute</button>
-            </form>
-        </div>
+            <!-- IMAGE SECTION -->
+            <div id="Image" class="tab-content hidden-tab">
+                <form action="/process_image" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    
+                    <!-- Operation Toggle Switch (Replaces Select Dropdown) -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Operation Type</label>
+                        <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-900/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-inner">
+                            <div>
+                                <input type="radio" name="action" id="img-hide" value="hide" class="peer hidden" checked>
+                                <label for="img-hide" class="block text-center py-3 rounded-xl cursor-pointer text-sm font-semibold text-slate-500 dark:text-slate-400 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:text-cyan-600 dark:peer-checked:text-cyan-400 peer-checked:shadow transition-all">
+                                    <i class="fa-solid fa-lock mr-2"></i>Encode (Hide)
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" name="action" id="img-reveal" value="reveal" class="peer hidden">
+                                <label for="img-reveal" class="block text-center py-3 rounded-xl cursor-pointer text-sm font-semibold text-slate-500 dark:text-slate-400 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:text-indigo-600 dark:peer-checked:text-indigo-400 peer-checked:shadow transition-all">
+                                    <i class="fa-solid fa-unlock mr-2"></i>Decode (Extract)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
 
-        <div id="Text" class="section">
-            <h2>Text Operation</h2>
-            <form action="/process_text" method="POST">
-                <label>Action:</label>
-                <select name="action">
-                    <option value="hide">Hide Text in Text</option>
-                    <option value="reveal">Reveal Text</option>
-                </select>
-                <label>Cover Text (Visible):</label>
-                <input type="text" name="cover_text" placeholder="This is a normal sentence.">
-                <label>Secret Message (Hidden):</label>
-                <input type="text" name="secret_text" placeholder="Secret...">
-                <button type="submit">Execute</button>
-            </form>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Cover Image (.png)</label>
+                        <div class="relative w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700/50 border-dashed hover:border-cyan-500 dark:hover:border-cyan-500/50 rounded-2xl p-6 text-center transition-all min-h-[140px] flex flex-col justify-center items-center group cursor-pointer">
+                            <input type="file" name="file" accept=".png" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="updateFileName(this, 'img-file-name')">
+                            <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-cyan-100 dark:group-hover:bg-cyan-500/10 transition-transform">
+                                <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-500 dark:text-slate-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"></i>
+                            </div>
+                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Upload cover image</span>
+                            <span class="text-xs text-slate-500 mt-1">PNG format strictly required</span>
+                            <div id="img-file-name" class="relative z-10 w-full"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Secret Payload</label>
+                        <input type="text" name="message" placeholder="Enter sensitive data here..." class="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-4 placeholder-slate-400 dark:placeholder-slate-600 shadow-sm dark:shadow-inner font-mono text-sm transition-colors border-cyan-500 focus:border-cyan-500">
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 dark:from-cyan-500 dark:to-indigo-500 dark:hover:from-cyan-400 dark:hover:to-indigo-400 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-cyan-500/25 mt-2 flex items-center justify-center group">
+                        Execute Protocol <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- AUDIO SECTION -->
+            <div id="Audio" class="tab-content hidden-tab">
+                <form action="/process_audio" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    
+                    <!-- Operation Toggle Switch -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Operation Type</label>
+                        <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-900/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-inner">
+                            <div>
+                                <input type="radio" name="action" id="audio-hide" value="hide" class="peer hidden" checked>
+                                <label for="audio-hide" class="block text-center py-3 rounded-xl cursor-pointer text-sm font-semibold text-slate-500 dark:text-slate-400 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:text-cyan-600 dark:peer-checked:text-cyan-400 peer-checked:shadow transition-all">
+                                    <i class="fa-solid fa-lock mr-2"></i>Encode (Hide)
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" name="action" id="audio-reveal" value="reveal" class="peer hidden">
+                                <label for="audio-reveal" class="block text-center py-3 rounded-xl cursor-pointer text-sm font-semibold text-slate-500 dark:text-slate-400 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:text-indigo-600 dark:peer-checked:text-indigo-400 peer-checked:shadow transition-all">
+                                    <i class="fa-solid fa-unlock mr-2"></i>Decode (Extract)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Cover Audio (.wav)</label>
+                        <div class="relative w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700/50 border-dashed hover:border-indigo-500 dark:hover:border-indigo-500/50 rounded-2xl p-6 text-center transition-all min-h-[140px] flex flex-col justify-center items-center group cursor-pointer">
+                            <input type="file" name="file" accept=".wav" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="updateFileName(this, 'aud-file-name')">
+                            <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/10 transition-transform">
+                                <i class="fa-solid fa-file-audio text-xl text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"></i>
+                            </div>
+                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Upload cover audio</span>
+                            <span class="text-xs text-slate-500 mt-1">WAV lossless format only</span>
+                            <div id="aud-file-name" class="relative z-10 w-full"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Secret Payload</label>
+                        <input type="text" name="message" placeholder="Enter sensitive data here..." class="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-4 placeholder-slate-400 dark:placeholder-slate-600 shadow-sm dark:shadow-inner font-mono text-sm transition-colors focus:border-indigo-500">
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 dark:from-cyan-500 dark:to-indigo-500 dark:hover:from-cyan-400 dark:hover:to-indigo-400 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-indigo-500/25 mt-2 flex items-center justify-center group">
+                        Execute Protocol <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- TEXT SECTION -->
+            <div id="Text" class="tab-content hidden-tab">
+                <form action="/process_text" method="POST" class="space-y-6">
+                    
+                    <!-- Operation Toggle Switch -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Operation Type</label>
+                        <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-900/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-inner">
+                            <div>
+                                <input type="radio" name="action" id="text-hide" value="hide" class="peer hidden" checked>
+                                <label for="text-hide" class="block text-center py-3 rounded-xl cursor-pointer text-sm font-semibold text-slate-500 dark:text-slate-400 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:text-cyan-600 dark:peer-checked:text-cyan-400 peer-checked:shadow transition-all">
+                                    <i class="fa-solid fa-lock mr-2"></i>Encode (Embed)
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" name="action" id="text-reveal" value="reveal" class="peer hidden">
+                                <label for="text-reveal" class="block text-center py-3 rounded-xl cursor-pointer text-sm font-semibold text-slate-500 dark:text-slate-400 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:text-indigo-600 dark:peer-checked:text-indigo-400 peer-checked:shadow transition-all">
+                                    <i class="fa-solid fa-unlock mr-2"></i>Decode (Extract)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Cover Text (Public)</label>
+                        <input type="text" name="cover_text" placeholder="e.g. The meeting is scheduled for tomorrow." class="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-4 placeholder-slate-400 dark:placeholder-slate-600 shadow-sm dark:shadow-inner text-sm transition-colors focus:border-cyan-500">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Secret Payload</label>
+                        <input type="text" name="secret_text" placeholder="Enter classified data..." class="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-4 placeholder-slate-400 dark:placeholder-slate-600 shadow-sm dark:shadow-inner font-mono text-sm transition-colors focus:border-cyan-500">
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 dark:from-cyan-500 dark:to-indigo-500 dark:hover:from-cyan-400 dark:hover:to-indigo-400 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-cyan-500/25 mt-2 flex items-center justify-center group">
+                        Execute Protocol <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </form>
+            </div>
+
         </div>
     </div>
+
 </body>
 </html>
